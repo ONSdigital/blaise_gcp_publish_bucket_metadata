@@ -1,2 +1,4 @@
+cryptography
+# cryptography==2.8
 google-cloud-storage==1.19.1
 google-cloud-pubsub==1.0.2
