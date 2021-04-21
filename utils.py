@@ -3,6 +3,11 @@ import binascii
 import blaise_dds
 
 
+def log_event(event):
+    print(f"Configuration: File name: {event['name']}")
+    print(f"Configuration: Bucket Name: {event['bucket']}")
+
+
 def md5hash_to_md5sum(md5hash):
     decode_hash = base64.b64decode(md5hash)
     encoded_hash = binascii.hexlify(decode_hash)

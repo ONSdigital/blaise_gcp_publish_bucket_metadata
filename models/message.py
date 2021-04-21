@@ -5,7 +5,12 @@ from typing import List
 
 from google.cloud import pubsub_v1
 
-from utils import md5hash_to_md5sum, InvalidFileExtension, InvalidFileType
+from utils import (
+    md5hash_to_md5sum,
+    InvalidFileExtension,
+    InvalidFileType,
+    size_in_megabytes,
+)
 
 SUPPORTED_FILE_EXTENSIONS = [".zip"]
 
@@ -115,8 +120,6 @@ class Message:
 
 
 def create_message(event, config):
-    from utils import size_in_megabytes
-
     file = File.from_event(event)
 
     msg = Message(

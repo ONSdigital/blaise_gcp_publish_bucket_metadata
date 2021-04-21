@@ -45,7 +45,7 @@ def test_update_data_delivery_state(mock_update_state, dd_event, instrument, sta
 
 
 @pytest.mark.parametrize(
-    "instrument,foolish_state",
+    "instrument,spicy_state",
     [
         ("LMC2102R", "in_kfc_bucket"),
         ("OPN2102R", "hifi_notified"),
@@ -53,10 +53,10 @@ def test_update_data_delivery_state(mock_update_state, dd_event, instrument, sta
     ],
 )
 def test_update_data_delivery_state_invalid_state(
-    dd_event, instrument, foolish_state, capsys
+    dd_event, instrument, spicy_state, capsys
 ):
     dd_event = dd_event(instrument)
-    update_data_delivery_state(dd_event, foolish_state)
+    update_data_delivery_state(dd_event, spicy_state)
     captured = capsys.readouterr()
     assert (
         captured.out

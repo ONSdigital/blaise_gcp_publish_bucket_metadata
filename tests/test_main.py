@@ -4,7 +4,6 @@ import blaise_dds
 import pytest
 
 from google.cloud.pubsub_v1 import PublisherClient
-from utils import InvalidFileExtension, InvalidFileType
 from unittest import mock
 from main import publishMsg
 
