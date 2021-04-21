@@ -6,7 +6,12 @@ import blaise_dds
 import pytest
 from google.cloud.pubsub_v1 import PublisherClient
 
-from main import publishMsg, size_in_megabytes, update_data_delivery_service
+from main import (
+    publishMsg,
+    size_in_megabytes,
+    update_data_delivery_service,
+    create_message,
+)
 
 
 @mock.patch.dict(
@@ -223,3 +228,48 @@ def test_update_dds(mock_update_state, dd_event, instrument, state):
 #         captured.out
 #         == "failed to establish dds client: Computer says no. Do not pass Go. Do not collect £200"
 #     )
+
+
+def test_create_message_mi(mi_event, config):
+    actual_message = create_message(mi_event, config)
+    assert (
+        actual_message.description
+        == "Management Information files uploaded to GCP bucket from Blaise5"
+    )
+    assert actual_message.dataset == "blaise_mi"
+    assert actual_message.iterationL1 == "OPN"
+    assert actual_message.iterationL2 == ""
+
+
+@pytest.mark.parametrize(
+    "instrument",
+    [
+        ("OPN2101A"),
+        ("LMS2102_A1"),
+        ("LMS2102_BK1"),
+        ("LMC2102_BK1"),
+        ("LMB21021_BK2"),
+    ],
+)
+def test_create_message_dd(instrument, dd_event, config, file):
+    file.name = f"dd_{instrument}.zip:my-bucket-name"
+
+    dd_event = dd_event(instrument)
+    actual_message = create_message(dd_event, config)
+
+    assert (
+        actual_message.description
+        == f"Data Delivery files for {file.survey_name()} uploaded to GCP bucket from Blaise5"
+    )
+    assert actual_message.dataset == "blaise_dde"
+
+    if file.is_lms():
+        assert actual_message.iterationL1 == "LMS_Master"
+        assert actual_message.iterationL2 == "CLOUD"
+        assert actual_message.iterationL3 == config.env
+        assert actual_message.iterationL4 == instrument
+    if file.is_opn():
+        assert actual_message.iterationL1 == "SYSTEMS"
+        assert actual_message.iterationL2 == config.on_prem_subfolder
+        assert actual_message.iterationL3 == file.survey_name()
+        assert actual_message.iterationL4 == file.instrument_name()

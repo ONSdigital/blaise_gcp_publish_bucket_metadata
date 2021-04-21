@@ -1,5 +1,6 @@
 import pytest
 
+from models.config import Config
 from models.message import File
 
 
@@ -31,6 +32,13 @@ def mi_event(md5hash):
         "size": "20",
         "timeCreated": "0103202021_16428",
     }
+
+
+@pytest.fixture
+def config():
+    return Config(
+        on_prem_subfolder="OPN", project_id="foobar", topic_name="barfoo", env="test"
+    )
 
 
 @pytest.fixture
