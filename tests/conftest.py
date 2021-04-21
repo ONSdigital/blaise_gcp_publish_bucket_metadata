@@ -1,7 +1,7 @@
 import pytest
 
 from models.config import Config
-from models.message import File
+from models.message import File, Message
 
 
 @pytest.fixture
@@ -37,7 +37,10 @@ def mi_event(md5hash):
 @pytest.fixture
 def config():
     return Config(
-        on_prem_subfolder="OPN", project_id="foobar", topic_name="barfoo", env="test"
+        on_prem_subfolder="OPN",
+        project_id="foobar",
+        topic_name="barfoo",
+        env="test",
     )
 
 
@@ -48,6 +51,25 @@ def file():
         sizeBytes="20",
         md5sum="dasdasd",
         relativePath="./",
+    )
+
+
+@pytest.fixture
+def message(file, md5hash, config):
+    return Message(
+        files=file,
+        sourceName="foo",
+        manifestCreated="bar",
+        fullSizeMegabytes="foobar",
+        version=3,
+        schemaVersion=1,
+        description="barfoo",
+        dataset="foobarfoo",
+        sensitivity="High",
+        iterationL1=config.on_prem_subfolder,
+        iterationL2="",
+        iterationL3="",
+        iterationL4="",
     )
 
 
@@ -127,4 +149,28 @@ def expected_pubsub_message_lmc():
         "iterationL4": "LMC2102R",
         "manifestCreated": "0103202021_16428",
         "fullSizeMegabytes": "0.000020",
+    }
+
+
+@pytest.fixture
+def expected_pubsub_message_foo():
+    return {
+        "dataset": "foobarfoo",
+        "description": "barfoo",
+        "files": {
+            "md5sum": "dasdasd",
+            "name": "dd_file.zip:my-bucket-name",
+            "relativePath": "./",
+            "sizeBytes": "20",
+        },
+        "fullSizeMegabytes": "foobar",
+        "iterationL1": "OPN",
+        "iterationL2": "",
+        "iterationL3": "",
+        "iterationL4": "",
+        "manifestCreated": "bar",
+        "schemaVersion": 1,
+        "sensitivity": "High",
+        "sourceName": "foo",
+        "version": 3,
     }

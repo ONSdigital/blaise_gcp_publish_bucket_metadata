@@ -11,6 +11,7 @@ from main import (
     size_in_megabytes,
     update_data_delivery_state,
     create_message,
+    send_pub_sub_message,
 )
 
 
@@ -204,7 +205,7 @@ def test_size_in_megabytes(size_in_bytes, size_in_megs):
         ("LMS2102R", "in_arc"),
     ],
 )
-def test_update_dds(mock_update_state, dd_event, instrument, state):
+def test_update_data_delivery_state(mock_update_state, dd_event, instrument, state):
     dd_event = dd_event(instrument)
     update_data_delivery_state(dd_event, state)
     assert mock_update_state.call_count == 1
@@ -348,3 +349,15 @@ def test_create_message_invalid_file_type(spicy_file_types, dd_event, config):
 
     with pytest.raises(InvalidFileType):
         create_message(dd_event, config)
+
+
+@mock.patch.object(PublisherClient, "publish")
+def test_send_pub_sub_message(
+    mock_pubsub, config, message, expected_pubsub_message_foo
+):
+    send_pub_sub_message(config, message)
+
+    assert len(mock_pubsub.call_args_list) == 1
+    assert mock_pubsub.call_args_list[0][0][0] == "projects/foobar/topics/barfoo"
+    pubsub_message = mock_pubsub.call_args_list[0][1]["data"]
+    assert json.loads(pubsub_message) == expected_pubsub_message_foo
