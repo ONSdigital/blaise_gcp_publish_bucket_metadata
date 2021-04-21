@@ -109,39 +109,6 @@ def test_publishMsg_mi(mock_pubsub, mock_update_state, mi_event):
 
 @mock.patch.dict(
     os.environ,
-    {"PROJECT_ID": "test_project_id", "ENV": "test", "TOPIC_NAME": "nifi-notify"},
-)
-@mock.patch.object(blaise_dds.Client, "update_state")
-@mock.patch.object(PublisherClient, "publish")
-@pytest.mark.parametrize(
-    "instrument",
-    [
-        ("LMC2102R"),
-        ("OPN2102R"),
-        ("LMS2102R"),
-    ],
-)
-def test_publishMsg_error(mock_pubsub, mock_update_state, dd_event, instrument):
-    mock_pubsub.side_effect = Exception(
-        "Explosions occurred when sending message to pubsub"
-    )
-    dd_event = dd_event(instrument)
-    publishMsg(dd_event, None)
-    assert mock_update_state.call_count == 2
-    assert mock_update_state.call_args_list[0] == mock.call(
-        dd_event["name"],
-        "in_nifi_bucket",
-        None,
-    )
-    assert mock_update_state.call_args_list[1] == mock.call(
-        dd_event["name"],
-        "errored",
-        "Exception('Explosions occurred when sending message to pubsub')",
-    )
-
-
-@mock.patch.dict(
-    os.environ,
     {"TOPIC_NAME": "nifi-notify"},
 )
 @mock.patch.object(blaise_dds.Client, "update_state")
@@ -172,4 +139,37 @@ def test_project_id_not_set(mock_update_state, dd_event, capsys, instrument):
         + f"Configuration: File name: dd_{instrument}_0103202021_16428.zip\n"
         + "Configuration: Bucket Name: ons-blaise-v2-nifi\n"
         + "project_id not set, publish failed\n"
+    )
+
+
+@mock.patch.dict(
+    os.environ,
+    {"PROJECT_ID": "test_project_id", "ENV": "test", "TOPIC_NAME": "nifi-notify"},
+)
+@mock.patch.object(blaise_dds.Client, "update_state")
+@mock.patch.object(PublisherClient, "publish")
+@pytest.mark.parametrize(
+    "instrument",
+    [
+        ("LMC2102R"),
+        ("OPN2102R"),
+        ("LMS2102R"),
+    ],
+)
+def test_publishMsg_error(mock_pubsub, mock_update_state, dd_event, instrument):
+    mock_pubsub.side_effect = Exception(
+        "Explosions occurred when sending message to pubsub"
+    )
+    dd_event = dd_event(instrument)
+    publishMsg(dd_event, None)
+    assert mock_update_state.call_count == 2
+    assert mock_update_state.call_args_list[0] == mock.call(
+        dd_event["name"],
+        "in_nifi_bucket",
+        None,
+    )
+    assert mock_update_state.call_args_list[1] == mock.call(
+        dd_event["name"],
+        "errored",
+        "Exception('Explosions occurred when sending message to pubsub')",
     )

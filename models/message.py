@@ -3,14 +3,14 @@ import pathlib
 from dataclasses import asdict, dataclass
 from typing import List
 
-from google.cloud import pubsub_v1
-
 from utils import (
     md5hash_to_md5sum,
+    size_in_megabytes,
     InvalidFileExtension,
     InvalidFileType,
-    size_in_megabytes,
 )
+
+from google.cloud import pubsub_v1
 
 SUPPORTED_FILE_EXTENSIONS = [".zip"]
 
