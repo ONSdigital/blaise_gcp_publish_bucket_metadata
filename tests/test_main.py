@@ -1,15 +1,15 @@
 import json
 import os
-from unittest import mock
-
 import blaise_dds
 import pytest
-from google.cloud.pubsub_v1 import PublisherClient
 
+from google.cloud.pubsub_v1 import PublisherClient
+from utils import InvalidFileExtension, InvalidFileType
+from unittest import mock
 from main import (
     publishMsg,
     size_in_megabytes,
-    update_data_delivery_service,
+    update_data_delivery_state,
     create_message,
 )
 
@@ -206,12 +206,32 @@ def test_size_in_megabytes(size_in_bytes, size_in_megs):
 )
 def test_update_dds(mock_update_state, dd_event, instrument, state):
     dd_event = dd_event(instrument)
-    update_data_delivery_service(dd_event, state)
+    update_data_delivery_state(dd_event, state)
     assert mock_update_state.call_count == 1
     assert mock_update_state.call_args_list[0] == mock.call(
         dd_event["name"],
         state,
         None,
+    )
+
+
+@pytest.mark.parametrize(
+    "instrument,foolish_state",
+    [
+        ("LMC2102R", "in_kfc_bucket"),
+        ("OPN2102R", "hifi_notified"),
+        ("LMS2102R", "noah_is_in_the_arc"),
+    ],
+)
+def test_update_data_delivery_state_invalid_state(
+    dd_event, instrument, foolish_state, capsys
+):
+    dd_event = dd_event(instrument)
+    update_data_delivery_state(dd_event, foolish_state)
+    captured = capsys.readouterr()
+    assert (
+        captured.out
+        == "failed to update dds state: Invalid URL 'None/v1/state/descriptions': No schema supplied. Perhaps you meant http://None/v1/state/descriptions?\n"
     )
 
 
@@ -224,18 +244,18 @@ def test_update_dds(mock_update_state, dd_event, instrument, state):
         ("LMS2102R", "in_arc"),
     ],
 )
-def test_update_data_delivery_service_fail(
+def test_update_data_delivery_state_fail(
     mock_update_state, dd_event, capsys, instrument, state
 ):
     mock_update_state.side_effect = Exception(
         "Computer says no. Do not pass Go. Do not collect £200"
     )
     dd_event = dd_event(instrument)
-    update_data_delivery_service(dd_event, state)
+    update_data_delivery_state(dd_event, state)
     captured = capsys.readouterr()
     assert (
         captured.out
-        == "failed to establish dds client: Computer says no. Do not pass Go. Do not collect £200\n"
+        == "failed to update dds state: Computer says no. Do not pass Go. Do not collect £200\n"
     )
 
 
@@ -288,8 +308,43 @@ def test_create_message_dd_lms(
         == f"Data Delivery files for {expected_survey_name} uploaded to GCP bucket from Blaise5"
     )
     assert actual_message.dataset == "blaise_dde"
-
     assert actual_message.iterationL1 == "LMS_Master"
     assert actual_message.iterationL2 == "CLOUD"
     assert actual_message.iterationL3 == config.env
     assert actual_message.iterationL4 == instrument.upper()
+
+
+@pytest.mark.parametrize(
+    "spicy_file_extension",
+    [
+        ("avi"),
+        ("dat"),
+        ("nth"),
+        ("zoo"),
+        ("qxd"),
+    ],
+)
+def test_create_message_invalid_file_extension(spicy_file_extension, dd_event, config):
+    dd_event = dd_event("OPN2101A")
+    dd_event["name"] = f"dd_opn2101a.{spicy_file_extension}:my-bucket-name"
+
+    with pytest.raises(InvalidFileExtension):
+        create_message(dd_event, config)
+
+
+@pytest.mark.parametrize(
+    "spicy_file_types",
+    [
+        ("notMI"),
+        ("notDD"),
+        ("ddfoo"),
+        ("mibar"),
+        ("mmmm_spicy"),
+    ],
+)
+def test_create_message_invalid_file_type(spicy_file_types, dd_event, config):
+    dd_event = dd_event("OPN2101A")
+    dd_event["name"] = f"{spicy_file_types}_opn2101a.zip:my-bucket-name"
+
+    with pytest.raises(InvalidFileType):
+        create_message(dd_event, config)
