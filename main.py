@@ -55,16 +55,12 @@ def send_pub_sub_message(config, message):
 
 
 def update_data_delivery_service(event, state, error=None):
+    dds_client = blaise_dds.Client(blaise_dds.Config.from_env())
     try:
-        dds_client = blaise_dds.Client(blaise_dds.Config.from_env())
+        dds_client.update_state(event["name"], state, error)
     except Exception as err:
         print(f"failed to establish dds client: {err}")
-        return
-
-    if error:
-        dds_client.update_state(event["name"], state, error)
-        return
-    dds_client.update_state(event["name"], state)
+    return
 
 
 def publishMsg(event, _context):
