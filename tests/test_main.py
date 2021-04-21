@@ -43,10 +43,12 @@ def test_publishMsg_dd(
     assert mock_update_state.call_args_list[0] == mock.call(
         dd_event["name"],
         "in_nifi_bucket",
+        None,
     )
     assert mock_update_state.call_args_list[1] == mock.call(
         dd_event["name"],
         "nifi_notified",
+        None,
     )
     assert len(mock_pubsub.call_args_list) == 1
     assert (
@@ -74,10 +76,12 @@ def test_publishMsg_mi(mock_pubsub, mock_update_state, mi_event):
     assert mock_update_state.call_args_list[0] == mock.call(
         mi_event["name"],
         "in_nifi_bucket",
+        None,
     )
     assert mock_update_state.call_args_list[1] == mock.call(
         mi_event["name"],
         "nifi_notified",
+        None,
     )
 
     assert (
@@ -133,6 +137,7 @@ def test_publishMsg_error(mock_pubsub, mock_update_state, dd_event, instrument):
     assert mock_update_state.call_args_list[0] == mock.call(
         dd_event["name"],
         "in_nifi_bucket",
+        None,
     )
     assert mock_update_state.call_args_list[1] == mock.call(
         dd_event["name"],
@@ -162,6 +167,7 @@ def test_project_id_not_set(mock_update_state, dd_event, capsys, instrument):
     assert mock_update_state.call_args_list[0] == mock.call(
         dd_event["name"],
         "in_nifi_bucket",
+        None,
     )
     captured = capsys.readouterr()
     assert captured.out == (
@@ -205,29 +211,32 @@ def test_update_dds(mock_update_state, dd_event, instrument, state):
     assert mock_update_state.call_args_list[0] == mock.call(
         dd_event["name"],
         state,
+        None,
     )
 
 
-# @mock.patch.object(blaise_dds.Client, "update_state")
-# @pytest.mark.parametrize(
-#     "instrument,state",
-#     [
-#         ("LMC2102R", "in_nifi_bucket"),
-#         ("OPN2102R", "nifi_notified"),
-#         ("LMS2102R", "in_arc"),
-#     ],
-# )
-# def test_update_dds_fail(mock_update_state, dd_event, capsys, instrument, state):
-#     mock_update_state.side_effect = Exception(
-#         "Computer says no. Do not pass Go. Do not collect £200"
-#     )
-#     dd_event = dd_event(instrument)
-#     update_dds(dd_event, state)
-#     captured = capsys.readouterr()
-#     assert (
-#         captured.out
-#         == "failed to establish dds client: Computer says no. Do not pass Go. Do not collect £200"
-#     )
+@mock.patch.object(blaise_dds.Client, "update_state")
+@pytest.mark.parametrize(
+    "instrument,state",
+    [
+        ("LMC2102R", "in_nifi_bucket"),
+        ("OPN2102R", "nifi_notified"),
+        ("LMS2102R", "in_arc"),
+    ],
+)
+def test_update_data_delivery_service_fail(
+    mock_update_state, dd_event, capsys, instrument, state
+):
+    mock_update_state.side_effect = Exception(
+        "Computer says no. Do not pass Go. Do not collect £200"
+    )
+    dd_event = dd_event(instrument)
+    update_data_delivery_service(dd_event, state)
+    captured = capsys.readouterr()
+    assert (
+        captured.out
+        == "failed to establish dds client: Computer says no. Do not pass Go. Do not collect £200\n"
+    )
 
 
 def test_create_message_mi(mi_event, config):
@@ -241,35 +250,46 @@ def test_create_message_mi(mi_event, config):
     assert actual_message.iterationL2 == ""
 
 
+def test_create_message_dd_opn(dd_event, config, file):
+    file.name = f"dd_OPN2101A.zip:my-bucket-name"
+
+    dd_event = dd_event("OPN2101A")
+    actual_message = create_message(dd_event, config)
+
+    assert (
+        actual_message.description
+        == "Data Delivery files for OPN uploaded to GCP bucket from Blaise5"
+    )
+    assert actual_message.dataset == "blaise_dde"
+    assert actual_message.iterationL1 == "SYSTEMS"
+    assert actual_message.iterationL2 == config.on_prem_subfolder
+    assert actual_message.iterationL3 == "OPN"
+    assert actual_message.iterationL4 == "OPN2101A"
+
+
 @pytest.mark.parametrize(
-    "instrument",
+    "instrument,expected_survey_name",
     [
-        ("OPN2101A"),
-        ("LMS2102_A1"),
-        ("LMS2102_BK1"),
-        ("LMC2102_BK1"),
-        ("LMB21021_BK2"),
+        ("LMS2102_A1", "LMS"),
+        ("lms2102_bk1", "LMS"),
+        ("lmc2102_bk1", "LMC"),
+        ("lmb21021_bk2", "LMB"),
     ],
 )
-def test_create_message_dd(instrument, dd_event, config, file):
+def test_create_message_dd_lms(
+    instrument, expected_survey_name, dd_event, config, file
+):
     file.name = f"dd_{instrument}.zip:my-bucket-name"
-
     dd_event = dd_event(instrument)
     actual_message = create_message(dd_event, config)
 
     assert (
         actual_message.description
-        == f"Data Delivery files for {file.survey_name()} uploaded to GCP bucket from Blaise5"
+        == f"Data Delivery files for {expected_survey_name} uploaded to GCP bucket from Blaise5"
     )
     assert actual_message.dataset == "blaise_dde"
 
-    if file.is_lms():
-        assert actual_message.iterationL1 == "LMS_Master"
-        assert actual_message.iterationL2 == "CLOUD"
-        assert actual_message.iterationL3 == config.env
-        assert actual_message.iterationL4 == instrument
-    if file.is_opn():
-        assert actual_message.iterationL1 == "SYSTEMS"
-        assert actual_message.iterationL2 == config.on_prem_subfolder
-        assert actual_message.iterationL3 == file.survey_name()
-        assert actual_message.iterationL4 == file.instrument_name()
+    assert actual_message.iterationL1 == "LMS_Master"
+    assert actual_message.iterationL2 == "CLOUD"
+    assert actual_message.iterationL3 == config.env
+    assert actual_message.iterationL4 == instrument.upper()
