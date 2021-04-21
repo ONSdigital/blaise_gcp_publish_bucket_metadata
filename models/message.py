@@ -3,7 +3,13 @@ import pathlib
 from dataclasses import asdict, dataclass
 from typing import List
 
-from utils import md5hash_to_md5sum
+from google.cloud import pubsub_v1
+
+from utils import md5hash_to_md5sum, InvalidFileExtension, InvalidFileType
+
+SUPPORTED_FILE_EXTENSIONS = [".zip"]
+
+SUPPORTED_FILE_TYPES = ["dd", "mi"]
 
 
 @dataclass
@@ -106,3 +112,40 @@ class Message:
         self.iterationL3 = environment
         self.iterationL4 = file.instrument_name()
         return self
+
+
+def create_message(event, config):
+    from utils import size_in_megabytes
+
+    file = File.from_event(event)
+
+    msg = Message(
+        sourceName=f"gcp_blaise_{config.env}",
+        manifestCreated=event["timeCreated"],
+        fullSizeMegabytes=size_in_megabytes(event["size"]),
+        files=[file],
+    )
+
+    if file.extension() not in SUPPORTED_FILE_EXTENSIONS:
+        raise InvalidFileExtension(
+            f"File extension '{file.extension()}' is invalid, supported extensions: {SUPPORTED_FILE_EXTENSIONS}"  # noqa:E501
+        )
+
+    if file.type() == "mi":
+        return msg.management_information(config)
+    if file.type() == "dd" and file.is_opn():
+        return msg.data_delivery_opn(config)
+    if file.type() == "dd" and file.is_lms():
+        return msg.data_delivery_lms(config)
+
+    raise InvalidFileType(
+        f"File type '{file.type()}' is invalid, supported extensions: {SUPPORTED_FILE_TYPES}"  # noqa:E501
+    )
+
+
+def send_pub_sub_message(config, message):
+    client = pubsub_v1.PublisherClient()
+    topic_path = client.topic_path(config.project_id, config.topic_name)
+    msg_bytes = bytes(message.json(), encoding="utf-8")
+    client.publish(topic_path, data=msg_bytes)
+    print("Message published")

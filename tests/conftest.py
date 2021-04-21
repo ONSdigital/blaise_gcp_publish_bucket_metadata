@@ -150,27 +150,3 @@ def expected_pubsub_message_lmc():
         "manifestCreated": "0103202021_16428",
         "fullSizeMegabytes": "0.000020",
     }
-
-
-@pytest.fixture
-def expected_pubsub_message_foo():
-    return {
-        "dataset": "foobarfoo",
-        "description": "barfoo",
-        "files": {
-            "md5sum": "dasdasd",
-            "name": "dd_file.zip:my-bucket-name",
-            "relativePath": "./",
-            "sizeBytes": "20",
-        },
-        "fullSizeMegabytes": "foobar",
-        "iterationL1": "OPN",
-        "iterationL2": "",
-        "iterationL3": "",
-        "iterationL4": "",
-        "manifestCreated": "bar",
-        "schemaVersion": 1,
-        "sensitivity": "High",
-        "sourceName": "foo",
-        "version": 3,
-    }

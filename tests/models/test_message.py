@@ -2,7 +2,12 @@ import json
 
 import pytest
 
-from models.message import File, Message
+from dataclasses import asdict
+from utils import InvalidFileExtension, InvalidFileType
+from unittest import mock
+from google.cloud.pubsub_v1 import PublisherClient
+
+from models.message import File, Message, create_message, send_pub_sub_message
 
 
 def test_message_json():
@@ -131,3 +136,104 @@ def test_is_lms(file, survey_name, expected):
 def test_is_opn(file, survey_name, expected):
     file.name = f"dd_{survey_name}2101a.zip:my-bucket-name"
     assert file.is_opn() is expected
+
+
+def test_create_message_mi(mi_event, config):
+    actual_message = create_message(mi_event, config)
+    assert (
+        actual_message.description
+        == "Management Information files uploaded to GCP bucket from Blaise5"
+    )
+    assert actual_message.dataset == "blaise_mi"
+    assert actual_message.iterationL1 == "OPN"
+    assert actual_message.iterationL2 == ""
+
+
+def test_create_message_dd_opn(dd_event, config, file):
+    file.name = f"dd_OPN2101A.zip:my-bucket-name"
+
+    dd_event = dd_event("OPN2101A")
+    actual_message = create_message(dd_event, config)
+
+    assert (
+        actual_message.description
+        == "Data Delivery files for OPN uploaded to GCP bucket from Blaise5"
+    )
+    assert actual_message.dataset == "blaise_dde"
+    assert actual_message.iterationL1 == "SYSTEMS"
+    assert actual_message.iterationL2 == config.on_prem_subfolder
+    assert actual_message.iterationL3 == "OPN"
+    assert actual_message.iterationL4 == "OPN2101A"
+
+
+@pytest.mark.parametrize(
+    "instrument,expected_survey_name",
+    [
+        ("LMS2102_A1", "LMS"),
+        ("lms2102_bk1", "LMS"),
+        ("lmc2102_bk1", "LMC"),
+        ("lmb21021_bk2", "LMB"),
+    ],
+)
+def test_create_message_dd_lms(
+    instrument, expected_survey_name, dd_event, config, file
+):
+    file.name = f"dd_{instrument}.zip:my-bucket-name"
+    dd_event = dd_event(instrument)
+    actual_message = create_message(dd_event, config)
+
+    assert (
+        actual_message.description
+        == f"Data Delivery files for {expected_survey_name} uploaded to GCP bucket from Blaise5"
+    )
+    assert actual_message.dataset == "blaise_dde"
+    assert actual_message.iterationL1 == "LMS_Master"
+    assert actual_message.iterationL2 == "CLOUD"
+    assert actual_message.iterationL3 == config.env
+    assert actual_message.iterationL4 == instrument.upper()
+
+
+@pytest.mark.parametrize(
+    "spicy_file_extension",
+    [
+        ("avi"),
+        ("dat"),
+        ("nth"),
+        ("zoo"),
+        ("qxd"),
+    ],
+)
+def test_create_message_invalid_file_extension(spicy_file_extension, dd_event, config):
+    dd_event = dd_event("OPN2101A")
+    dd_event["name"] = f"dd_opn2101a.{spicy_file_extension}:my-bucket-name"
+
+    with pytest.raises(InvalidFileExtension):
+        create_message(dd_event, config)
+
+
+@pytest.mark.parametrize(
+    "spicy_file_types",
+    [
+        ("notMI"),
+        ("notDD"),
+        ("ddfoo"),
+        ("mibar"),
+        ("mmmm_spicy"),
+    ],
+)
+def test_create_message_invalid_file_type(spicy_file_types, dd_event, config):
+    dd_event = dd_event("OPN2101A")
+    dd_event["name"] = f"{spicy_file_types}_opn2101a.zip:my-bucket-name"
+
+    with pytest.raises(InvalidFileType):
+        create_message(dd_event, config)
+
+
+@mock.patch.object(PublisherClient, "publish")
+def test_send_pub_sub_message(mock_pubsub, config, message):
+    send_pub_sub_message(config, message)
+
+    assert len(mock_pubsub.call_args_list) == 1
+    assert mock_pubsub.call_args_list[0][0][0] == "projects/foobar/topics/barfoo"
+    pubsub_message = mock_pubsub.call_args_list[0][1]["data"]
+    assert json.loads(pubsub_message) == asdict(message)
