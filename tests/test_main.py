@@ -23,33 +23,17 @@ from main import publishMsg
 @pytest.mark.parametrize(
     "instrument, expected_message",
     [
-        ("LMC2102R", pytest.lazy_fixture("expected_pubsub_message_lmc")),
-        ("OPN2102R", pytest.lazy_fixture("expected_pubsub_message_opn")),
-        ("LMS2102R", pytest.lazy_fixture("expected_pubsub_message_lms")),
+        ("OPN2102R", pytest.lazy_fixture("expected_pubsub_message_dd_opn")),
+        ("LMS2102R", pytest.lazy_fixture("expected_pubsub_message_dd_lms")),
+        ("LMC2102R", pytest.lazy_fixture("expected_pubsub_message_dd_lmc")),
     ],
 )
-def test_publishMsg_dd(
-    mock_pubsub, mock_update_state, dd_event, instrument, expected_message
+def test_publishMsg_for_data_delivery(
+    mock_pubsub, _mock_update_state, dd_event, instrument, expected_message
 ):
     dd_event = dd_event(instrument)
-
     publishMsg(dd_event, None)
-    assert mock_update_state.call_count == 2
-    assert mock_update_state.call_args_list[0] == mock.call(
-        dd_event["name"],
-        "in_nifi_bucket",
-        None,
-    )
-    assert mock_update_state.call_args_list[1] == mock.call(
-        dd_event["name"],
-        "nifi_notified",
-        None,
-    )
-    assert len(mock_pubsub.call_args_list) == 1
-    assert (
-        mock_pubsub.call_args_list[0][0][0]
-        == "projects/test_project_id/topics/nifi-notify"
-    )
+
     pubsub_message = mock_pubsub.call_args_list[0][1]["data"]
     assert json.loads(pubsub_message) == expected_message
 
@@ -65,47 +49,12 @@ def test_publishMsg_dd(
 )
 @mock.patch.object(blaise_dds.Client, "update_state")
 @mock.patch.object(PublisherClient, "publish")
-def test_publishMsg_mi(mock_pubsub, mock_update_state, mi_event):
+def test_publishMsg_for_management_information(
+    mock_pubsub, _mock_update_state, mi_event, expected_pubsub_message_mi
+):
     publishMsg(mi_event, None)
-    assert mock_update_state.call_count == 2
-    assert mock_update_state.call_args_list[0] == mock.call(
-        mi_event["name"],
-        "in_nifi_bucket",
-        None,
-    )
-    assert mock_update_state.call_args_list[1] == mock.call(
-        mi_event["name"],
-        "nifi_notified",
-        None,
-    )
-
-    assert (
-        mock_pubsub.call_args_list[0][0][0]
-        == "projects/test_project_id/topics/nifi-notify"
-    )
     pubsub_message = mock_pubsub.call_args_list[0][1]["data"]
-    assert json.loads(pubsub_message) == {
-        "version": 3,
-        "schemaVersion": 1,
-        "files": [
-            {
-                "sizeBytes": "20",
-                "name": "mi_foobar.zip:ons-blaise-v2-nifi",
-                "md5sum": "d1ad7875be9ee3c6fde3b6f9efdf3c6b67fad78ebd7f6dbc",
-                "relativePath": ".\\",
-            }
-        ],
-        "sensitivity": "High",
-        "sourceName": "gcp_blaise_test",
-        "description": "Management Information files uploaded to GCP bucket from Blaise5",
-        "dataset": "blaise_mi",
-        "iterationL1": "DEV",
-        "iterationL2": "",
-        "iterationL3": "",
-        "iterationL4": "",
-        "manifestCreated": "0103202021_16428",
-        "fullSizeMegabytes": "0.000020",
-    }
+    assert json.loads(pubsub_message) == expected_pubsub_message_mi
 
 
 @mock.patch.dict(
@@ -128,12 +77,6 @@ def test_publishMsg_error(mock_pubsub, mock_update_state, dd_event, instrument):
     )
     dd_event = dd_event(instrument)
     publishMsg(dd_event, None)
-    assert mock_update_state.call_count == 2
-    assert mock_update_state.call_args_list[0] == mock.call(
-        dd_event["name"],
-        "in_nifi_bucket",
-        None,
-    )
     assert mock_update_state.call_args_list[1] == mock.call(
         dd_event["name"],
         "errored",

@@ -74,7 +74,7 @@ def message(file, md5hash, config):
 
 
 @pytest.fixture
-def expected_pubsub_message_opn():
+def expected_pubsub_message_dd_opn():
     return {
         "version": 3,
         "schemaVersion": 1,
@@ -100,7 +100,7 @@ def expected_pubsub_message_opn():
 
 
 @pytest.fixture
-def expected_pubsub_message_lms():
+def expected_pubsub_message_dd_lms():
     # TODO: I think we need a different dataset for LMS stuff for NiFi to know about ndata3 (make it up)
     return {
         "version": 3,
@@ -127,7 +127,7 @@ def expected_pubsub_message_lms():
 
 
 @pytest.fixture
-def expected_pubsub_message_lmc():
+def expected_pubsub_message_dd_lmc():
     return {
         "version": 3,
         "schemaVersion": 1,
@@ -146,6 +146,32 @@ def expected_pubsub_message_lmc():
         "iterationL1": "CLOUD",
         "iterationL2": "test",
         "iterationL3": "LMC2102R",
+        "iterationL4": "",
+        "manifestCreated": "0103202021_16428",
+        "fullSizeMegabytes": "0.000020",
+    }
+
+
+@pytest.fixture
+def expected_pubsub_message_mi():
+    return {
+        "version": 3,
+        "schemaVersion": 1,
+        "files": [
+            {
+                "sizeBytes": "20",
+                "name": "mi_foobar.zip:ons-blaise-v2-nifi",
+                "md5sum": "d1ad7875be9ee3c6fde3b6f9efdf3c6b67fad78ebd7f6dbc",
+                "relativePath": ".\\",
+            }
+        ],
+        "sensitivity": "High",
+        "sourceName": "gcp_blaise_test",
+        "description": "Management Information files uploaded to GCP bucket from Blaise5",
+        "dataset": "blaise_mi",
+        "iterationL1": "DEV",
+        "iterationL2": "",
+        "iterationL3": "",
         "iterationL4": "",
         "manifestCreated": "0103202021_16428",
         "fullSizeMegabytes": "0.000020",
