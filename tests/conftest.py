@@ -37,9 +37,9 @@ def mi_event(md5hash):
 @pytest.fixture
 def config():
     return Config(
-        on_prem_subfolder="OPN",
-        project_id="foobar",
-        topic_name="barfoo",
+        on_prem_subfolder="survey_on_prem_subfolder",
+        project_id="survey_project_id",
+        topic_name="topic_name",
         env="test",
     )
 
