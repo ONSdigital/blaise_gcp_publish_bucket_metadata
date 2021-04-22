@@ -137,13 +137,14 @@ def test_message_json():
     }
 
 
+# TODO: THORNE! Surveyrise this!
 def test_create_message_mi(mi_event, config):
     actual_message = create_message(mi_event, config)
     assert (
         actual_message.description
         == "Management Information files uploaded to GCP bucket from Blaise5"
     )
-    assert actual_message.dataset == "blaise_mi"
+    assert actual_message.dataset == f"blaise_mi"
     assert actual_message.iterationL1 == "OPN"
     assert actual_message.iterationL2 == ""
 
@@ -158,7 +159,7 @@ def test_create_message_dd_opn(dd_event, config, file):
         actual_message.description
         == "Data Delivery files for OPN uploaded to GCP bucket from Blaise5"
     )
-    assert actual_message.dataset == "blaise_dde"
+    assert actual_message.dataset == "blaise_dde_opn"
     assert actual_message.iterationL1 == "SYSTEMS"
     assert actual_message.iterationL2 == config.on_prem_subfolder
     assert actual_message.iterationL3 == "OPN"
@@ -185,7 +186,7 @@ def test_create_message_dd_lms(
         actual_message.description
         == f"Data Delivery files for {expected_survey_name} uploaded to GCP bucket from Blaise5"
     )
-    assert actual_message.dataset == "blaise_dde"
+    assert actual_message.dataset == "blaise_dde_lms"
     assert actual_message.iterationL1 == "CLOUD"
     assert actual_message.iterationL2 == config.env
     assert actual_message.iterationL3 == instrument.upper()

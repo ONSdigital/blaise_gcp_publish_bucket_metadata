@@ -97,7 +97,7 @@ class Message:
         self.description = (
             f"Data Delivery files for {survey_name} uploaded to GCP bucket from Blaise5"
         )
-        self.dataset = "blaise_dde"
+        self.dataset = "blaise_dde_opn"
         self.iterationL1 = "SYSTEMS"
         self.iterationL2 = config.on_prem_subfolder
         self.iterationL3 = survey_name
@@ -111,7 +111,7 @@ class Message:
         self.description = (
             f"Data Delivery files for {survey_name} uploaded to GCP bucket from Blaise5"
         )
-        self.dataset = "blaise_dde"
+        self.dataset = "blaise_dde_lms"
         self.iterationL1 = "CLOUD"
         self.iterationL2 = environment
         self.iterationL3 = file.instrument_name()
