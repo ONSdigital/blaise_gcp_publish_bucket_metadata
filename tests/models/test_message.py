@@ -187,10 +187,10 @@ def test_create_message_dd_lms(
         == f"Data Delivery files for {expected_survey_name} uploaded to GCP bucket from Blaise5"
     )
     assert actual_message.dataset == "blaise_dde"
-    assert actual_message.iterationL1 == "LMS_Master"
-    assert actual_message.iterationL2 == "CLOUD"
-    assert actual_message.iterationL3 == config.env
-    assert actual_message.iterationL4 == instrument.upper()
+    assert actual_message.iterationL1 == "CLOUD"
+    assert actual_message.iterationL2 == config.env
+    assert actual_message.iterationL3 == instrument.upper()
+    assert actual_message.iterationL4 == ""
 
 
 @pytest.mark.parametrize(
