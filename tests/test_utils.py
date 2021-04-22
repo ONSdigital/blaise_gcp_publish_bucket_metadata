@@ -1,10 +1,13 @@
-import pytest
-
-import blaise_dds
-
 from unittest import mock
 
-from utils import md5hash_to_md5sum, size_in_megabytes, update_data_delivery_state
+import blaise_dds
+import pytest
+
+from utils import (
+    md5hash_to_md5sum,
+    size_in_megabytes,
+    update_data_delivery_state,
+)
 
 
 def test_md5hash_to_md5sum(md5hash):

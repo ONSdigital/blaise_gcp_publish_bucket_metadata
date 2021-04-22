@@ -1,9 +1,9 @@
 import json
 import os
-import pytest
 from unittest import mock
 
 import blaise_dds
+import pytest
 from google.cloud.pubsub_v1 import PublisherClient
 
 from main import publishMsg

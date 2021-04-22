@@ -1,11 +1,11 @@
 import os
-import pytest
 from unittest import mock
 
 import blaise_dds
+import pytest
 
-from models.config import Config
 from main import publishMsg
+from models.config import Config
 
 
 def test_config():
