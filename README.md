@@ -8,6 +8,8 @@ Zip files uploaded to said bucket must be prefixed with "mi_" for Management Inf
 
 Appropriate zip file metadata messages are published to a Pub/Sub topic for MiNiFi to consume and transfer the zip files on-premises via NiFi.
 
+<b>Please post refactored and new Survey messages as examples in Confluence: https://collaborate2.ons.gov.uk/confluence/display/QSS/Blaise+5+Publish+PubSub+Topic+for+NiFi<b>
+
 ##Local Setup
 
 Clone the project locally:
