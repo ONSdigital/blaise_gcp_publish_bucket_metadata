@@ -101,7 +101,6 @@ def expected_pubsub_message_dd_opn():
 
 @pytest.fixture
 def expected_pubsub_message_dd_lms():
-    # TODO: I think we need a different dataset for LMS stuff for NiFi to know about ndata3 (make it up)
     return {
         "version": 3,
         "schemaVersion": 1,
