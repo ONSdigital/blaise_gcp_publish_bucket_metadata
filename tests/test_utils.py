@@ -58,7 +58,7 @@ def test_update_data_delivery_state(mock_update_state, dd_event, instrument, sta
         ("LMS2102R", "noah_is_in_the_arc"),
     ],
 )
-def test_update_data_delivery_state_invalid_state(
+def test_update_data_delivery_state_with_an_invalid_state(
     dd_event, instrument, spicy_state, capsys
 ):
     dd_event = dd_event(instrument)
