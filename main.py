@@ -1,6 +1,6 @@
 from models.config import Config
 from models.message import create_message, send_pub_sub_message
-from utils import update_data_delivery_state, log_event
+from utils import log_event, update_data_delivery_state
 
 
 def publishMsg(event, _context):

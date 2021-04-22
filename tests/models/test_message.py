@@ -1,13 +1,12 @@
 import json
-import pytest
-
 from dataclasses import asdict
 from unittest import mock
 
+import pytest
+from google.cloud.pubsub_v1 import PublisherClient
+
 from models.message import File, Message, create_message, send_pub_sub_message
 from utils import InvalidFileExtension, InvalidFileType
-
-from google.cloud.pubsub_v1 import PublisherClient
 
 
 def test_file_extension(file):
