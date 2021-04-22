@@ -25,12 +25,8 @@ python3 -m venv venv
 ```
 On Windows
 ```
-python -m venv venv  
-```
-
-(this will then run a .bat file)
-```
-venv\Scripts\activate 
+python -m venv venv
+venv\Scripts\activate (this will then run a .bat file)
 ```
 
 Install poetry:
@@ -42,6 +38,11 @@ Run poetry install
 ```
 poetry install
 ```
+
+##Using Poetry
+``` make format ``` will format your code to make it pretty which is the same as ```poetry run isort .```.
+
+```make lint``` checks your coding standards and ```make test``` will run all tests.
 
 ###Troubleshooting
 
