@@ -89,7 +89,7 @@ def expected_pubsub_message_dd_opn():
         "sensitivity": "High",
         "sourceName": "gcp_blaise_test",
         "description": "Data Delivery files for OPN uploaded to GCP bucket from Blaise5",
-        "dataset": "blaise_dde_opn",
+        "dataset": "blaise_dde",
         "iterationL1": "SYSTEMS",
         "iterationL2": "DEV",
         "iterationL3": "OPN",

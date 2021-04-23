@@ -125,7 +125,7 @@ def test_create_message_for_data_delivery_opn(dd_event, config):
         actual_message.description
         == "Data Delivery files for OPN uploaded to GCP bucket from Blaise5"
     )
-    assert actual_message.dataset == "blaise_dde_opn"
+    assert actual_message.dataset == "blaise_dde"
     assert actual_message.iterationL1 == "SYSTEMS"
     assert actual_message.iterationL2 == "survey_on_prem_subfolder"
     assert actual_message.iterationL3 == "OPN"
