@@ -46,6 +46,7 @@ def test_update_data_delivery_state(mock_update_state, dd_event, instrument, sta
     )
 
 
+@mock.patch.object(blaise_dds.Client, "update_state")
 @pytest.mark.parametrize(
     "instrument,spicy_state",
     [
@@ -55,14 +56,25 @@ def test_update_data_delivery_state(mock_update_state, dd_event, instrument, sta
     ],
 )
 def test_update_data_delivery_state_with_an_invalid_state(
-    dd_event, instrument, spicy_state, capsys
+    mock_update_state, dd_event, instrument, spicy_state, capsys
 ):
+    mock_update_state.side_effect = Exception(
+        "Computer says no. Do not pass Go. Do not collect £200."
+    )
+
     dd_event = dd_event(instrument)
     update_data_delivery_state(dd_event, spicy_state)
     captured = capsys.readouterr()
+
+    assert mock_update_state.call_count == 1
+    assert mock_update_state.call_args_list[0] == mock.call(
+        dd_event["name"],
+        spicy_state,
+        None,
+    )
     assert (
         captured.out
-        == "failed to update dds state: Invalid URL 'None/v1/state/descriptions': No schema supplied. Perhaps you meant http://None/v1/state/descriptions?\n"
+        == "failed to update dds state: Computer says no. Do not pass Go. Do not collect £200.\n"
     )
 
 
