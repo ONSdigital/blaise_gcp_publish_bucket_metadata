@@ -18,19 +18,6 @@ Clone the project locally:
 git clone https://github.com/ONSdigital/blaise-publish-bucket-metadata.git
 ```
 
-Create a virtual environment:
-
-On MacOS
-```
-python3 -m venv venv  
-
-```
-On Windows
-```
-python -m venv venv
-venv\Scripts\activate (this will then run a .bat file)
-```
-
 Install poetry:
 ```
 pip install poetry
