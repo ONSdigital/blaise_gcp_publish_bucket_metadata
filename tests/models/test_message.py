@@ -189,8 +189,7 @@ def test_create_message_with_an_invalid_file_extension(
     ],
 )
 def test_create_message_with_an_invalid_file_type(spicy_file_types, dd_event, config):
-    dd_event = dd_event("OPN2101A")
-    dd_event["name"] = f"{spicy_file_types}_opn2101a.zip:my-bucket-name"
+    dd_event = dd_event(spicy_file_types)
 
     with pytest.raises(InvalidFileType):
         create_message(dd_event, config)
