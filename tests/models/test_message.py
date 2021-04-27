@@ -180,19 +180,13 @@ def test_create_message_with_an_invalid_file_extension(
 
 @pytest.mark.parametrize(
     "spicy_file_types",
-    [
-        ("notMI"),
-        ("notDD"),
-        ("ddfoo"),
-        ("mibar"),
-        ("mmmm_spicy"),
-    ],
+    [("notMI"), ("notDD"), ("ddfoo"), ("mibar"), ("mmmm_spicy"), ("dd_KFC2101A")],
 )
-def test_create_message_with_an_invalid_file_type(spicy_file_types, dd_event, config):
-    dd_event = dd_event(spicy_file_types)
+def test_create_message_with_an_invalid_file_type(spicy_file_types, event, config):
+    event = event(spicy_file_types)
 
     with pytest.raises(InvalidFileType):
-        create_message(dd_event, config)
+        create_message(event, config)
 
 
 @mock.patch.object(PublisherClient, "publish")
