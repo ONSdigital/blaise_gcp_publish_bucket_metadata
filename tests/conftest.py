@@ -10,6 +10,20 @@ def md5hash():
 
 
 @pytest.fixture
+def event(md5hash):
+    def wrapper(filename):
+        return {
+            "name": f"{filename}.zip",
+            "bucket": "ons-blaise-v2-nifi",
+            "md5Hash": md5hash,
+            "size": "20",
+            "timeCreated": "0103202021_16428",
+        }
+
+    return wrapper
+
+
+@pytest.fixture
 def dd_event(md5hash):
     def wrapper(instrument):
         return {
