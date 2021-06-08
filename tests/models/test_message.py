@@ -119,11 +119,6 @@ def test_create_message_for_management_information(
     mi_event = mi_event(instrument)
     actual_message = create_message(mi_event, config)
 
-    import pprint
-
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(actual_message)
-
     assert (
         actual_message.description
         == "Management Information files uploaded to GCP bucket from Blaise5"
