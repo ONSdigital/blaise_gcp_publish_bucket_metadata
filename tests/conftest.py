@@ -39,13 +39,16 @@ def dd_event(md5hash):
 
 @pytest.fixture
 def mi_event(md5hash):
-    return {
-        "name": "mi_foobar.zip",
-        "bucket": "ons-blaise-v2-nifi",
-        "md5Hash": md5hash,
-        "size": "20",
-        "timeCreated": "0103202021_16428",
-    }
+    def wrapper(instrument):
+        return {
+            "name": f"mi_{instrument}_0103202021_16428.zip",
+            "bucket": "ons-blaise-v2-nifi",
+            "md5Hash": md5hash,
+            "size": "20",
+            "timeCreated": "0103202021_16428",
+        }
+
+    return wrapper
 
 
 @pytest.fixture
@@ -173,7 +176,7 @@ def expected_pubsub_message_mi():
         "files": [
             {
                 "sizeBytes": "20",
-                "name": "mi_foobar.zip:ons-blaise-v2-nifi",
+                "name": "mi_OPN2101A_0103202021_16428.zip:ons-blaise-v2-nifi",
                 "md5sum": "d1ad7875be9ee3c6fde3b6f9efdf3c6b67fad78ebd7f6dbc",
                 "relativePath": ".\\",
             }
@@ -182,10 +185,10 @@ def expected_pubsub_message_mi():
         "sourceName": "gcp_blaise_test",
         "description": "Management Information files uploaded to GCP bucket from Blaise5",
         "dataset": "blaise_mi",
-        "iterationL1": "DEV",
-        "iterationL2": "",
-        "iterationL3": "",
-        "iterationL4": "",
+        "iterationL1": "surveydata",
+        "iterationL2": "BL5-test",
+        "iterationL3": "OPN",
+        "iterationL4": "OPN2101A",
         "manifestCreated": "0103202021_16428",
         "fullSizeMegabytes": "0.000020",
     }

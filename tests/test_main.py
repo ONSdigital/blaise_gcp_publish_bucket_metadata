@@ -52,6 +52,7 @@ def test_publishMsg_for_data_delivery(
 def test_publishMsg_for_management_information(
     mock_pubsub, _mock_update_state, mi_event, expected_pubsub_message_mi
 ):
+    mi_event = mi_event("OPN2101A")
     publishMsg(mi_event, None)
     pubsub_message = mock_pubsub.call_args_list[0][1]["data"]
     assert json.loads(pubsub_message) == expected_pubsub_message_mi
