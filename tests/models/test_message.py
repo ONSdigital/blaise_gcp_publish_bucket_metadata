@@ -106,15 +106,27 @@ def test_file_from_event(dd_event):
     assert file.relativePath == ".\\"
 
 
-def test_create_message_for_management_information(mi_event, config):
+@pytest.mark.parametrize(
+    "instrument, expected_tla",
+    [
+        ("opn2101A", "OPN"),
+        ("lms2102_bk1", "LMS"),
+    ],
+)
+def test_create_message_for_management_information(
+    instrument, expected_tla, mi_event, config
+):
+    mi_event = mi_event(instrument)
     actual_message = create_message(mi_event, config)
+
     assert (
         actual_message.description
         == "Management Information files uploaded to GCP bucket from Blaise5"
     )
     assert actual_message.dataset == "blaise_mi"
-    assert actual_message.iterationL1 == "survey_on_prem_subfolder"
-    assert actual_message.iterationL2 == ""
+    assert actual_message.iterationL1 == "BL5-test"
+    assert actual_message.iterationL2 == expected_tla
+    assert actual_message.iterationL3 == instrument.upper()
 
 
 def test_create_message_for_data_delivery_opn(dd_event, config):
