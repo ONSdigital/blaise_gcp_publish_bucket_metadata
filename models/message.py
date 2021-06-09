@@ -89,10 +89,9 @@ class Message:
             "Management Information files uploaded to GCP bucket from Blaise5"
         )
         self.dataset = "blaise_mi"
-        self.iterationL1 = "surveydata"
-        self.iterationL2 = f"BL5-{config.env}"
-        self.iterationL3 = file.survey_name()
-        self.iterationL4 = file.instrument_name()
+        self.iterationL1 = f"BL5-{config.env}"
+        self.iterationL2 = file.survey_name()
+        self.iterationL3 = file.instrument_name()
         return self
 
     def data_delivery_opn(self, config):
