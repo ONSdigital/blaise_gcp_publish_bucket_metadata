@@ -84,11 +84,14 @@ class Message:
         return self.files[0]
 
     def management_information(self, config):
+        file = self.first_file()
         self.description = (
             "Management Information files uploaded to GCP bucket from Blaise5"
         )
         self.dataset = "blaise_mi"
-        self.iterationL1 = config.on_prem_subfolder
+        self.iterationL1 = f"BL5-{config.env}"
+        self.iterationL2 = file.survey_name()
+        self.iterationL3 = file.instrument_name()
         return self
 
     def data_delivery_opn(self, config):
