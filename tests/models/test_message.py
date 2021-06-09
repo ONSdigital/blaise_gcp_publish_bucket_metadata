@@ -124,10 +124,9 @@ def test_create_message_for_management_information(
         == "Management Information files uploaded to GCP bucket from Blaise5"
     )
     assert actual_message.dataset == "blaise_mi"
-    assert actual_message.iterationL1 == "surveydata"
-    assert actual_message.iterationL2 == "BL5-test"
-    assert actual_message.iterationL3 == expected_tla
-    assert actual_message.iterationL4 == instrument.upper()
+    assert actual_message.iterationL1 == "BL5-test"
+    assert actual_message.iterationL2 == expected_tla
+    assert actual_message.iterationL3 == instrument.upper()
 
 
 def test_create_message_for_data_delivery_opn(dd_event, config):
