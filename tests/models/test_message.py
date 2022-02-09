@@ -1,9 +1,8 @@
 import json
-from dataclasses import asdict
-from unittest import mock
-
 import pytest
+from dataclasses import asdict
 from google.cloud.pubsub_v1 import PublisherClient
+from unittest import mock
 
 from models.message import File, create_message, send_pub_sub_message
 from utils import InvalidFileExtension, InvalidFileType
@@ -78,26 +77,6 @@ def test_file_is_lms(file, survey_name, expected):
     assert file.is_lms() is expected
 
 
-@pytest.mark.parametrize(
-    "survey_name, expected",
-    [
-        ("OPN", True),
-        ("opn", True),
-        ("LMS", False),
-        ("LMB", False),
-        ("IPS", False),
-        ("LMC", False),
-        ("LMO", False),
-        ("QWERTY", False),
-        ("LMNOP", False),
-        ("OPNFOOBAR", True),
-    ],
-)
-def test_file_is_opn(file, survey_name, expected):
-    file.name = f"dd_{survey_name}2101a.zip:my-bucket-name"
-    assert file.is_opn() is expected
-
-
 def test_file_from_event(dd_event):
     file = File.from_event(dd_event("OPN2102R"))
     assert file.name == "dd_OPN2102R_0103202021_16428.zip:ons-blaise-v2-nifi"
@@ -114,14 +93,14 @@ def test_file_from_event(dd_event):
     ],
 )
 def test_create_message_for_management_information(
-    instrument, expected_tla, mi_event, config
+        instrument, expected_tla, mi_event, config
 ):
     mi_event = mi_event(instrument)
     actual_message = create_message(mi_event, config)
 
     assert (
-        actual_message.description
-        == "Management Information files uploaded to GCP bucket from Blaise5"
+            actual_message.description
+            == "Management Information files uploaded to GCP bucket from Blaise5"
     )
     assert actual_message.dataset == "blaise_mi"
     assert actual_message.iterationL1 == "BL5-test"
@@ -134,8 +113,8 @@ def test_create_message_for_data_delivery_opn(dd_event, config):
     actual_message = create_message(dd_event, config)
 
     assert (
-        actual_message.description
-        == "Data Delivery files for OPN uploaded to GCP bucket from Blaise5"
+            actual_message.description
+            == "Data Delivery files for OPN uploaded to GCP bucket from Blaise5"
     )
     assert actual_message.dataset == "blaise_dde"
     assert actual_message.iterationL1 == "SYSTEMS"
@@ -154,14 +133,14 @@ def test_create_message_for_data_delivery_opn(dd_event, config):
     ],
 )
 def test_create_message_for_data_delivery_lms(
-    instrument, expected_survey_name, dd_event, config
+        instrument, expected_survey_name, dd_event, config
 ):
     dd_event = dd_event(instrument)
     actual_message = create_message(dd_event, config)
 
     assert (
-        actual_message.description
-        == f"Data Delivery files for {expected_survey_name} uploaded to GCP bucket from Blaise5"
+            actual_message.description
+            == f"Data Delivery files for {expected_survey_name} uploaded to GCP bucket from Blaise5"
     )
     assert actual_message.dataset == "blaise_dde_lms"
     assert actual_message.iterationL1 == "CLOUD"
@@ -181,7 +160,7 @@ def test_create_message_for_data_delivery_lms(
     ],
 )
 def test_create_message_with_an_invalid_file_extension(
-    spicy_file_extension, dd_event, config
+        spicy_file_extension, dd_event, config
 ):
     dd_event = dd_event("OPN2101A")
     dd_event["name"] = f"dd_opn2101a.{spicy_file_extension}:my-bucket-name"
@@ -192,7 +171,7 @@ def test_create_message_with_an_invalid_file_extension(
 
 @pytest.mark.parametrize(
     "spicy_file_types",
-    [("notMI"), ("notDD"), ("ddfoo"), ("mibar"), ("mmmm_spicy"), ("dd_KFC2101A")],
+    [("notMI"), ("notDD"), ("ddfoo"), ("mibar"), ("mmmm_spicy")],
 )
 def test_create_message_with_an_invalid_file_type(spicy_file_types, event, config):
     event = event(spicy_file_types)
@@ -207,8 +186,8 @@ def test_send_pub_sub_message(mock_pubsub, config, message):
 
     assert len(mock_pubsub.call_args_list) == 1
     assert (
-        mock_pubsub.call_args_list[0][0][0]
-        == "projects/survey_project_id/topics/topic_name"
+            mock_pubsub.call_args_list[0][0][0]
+            == "projects/survey_project_id/topics/topic_name"
     )
     pubsub_message = mock_pubsub.call_args_list[0][1]["data"]
     assert json.loads(pubsub_message) == asdict(message)
