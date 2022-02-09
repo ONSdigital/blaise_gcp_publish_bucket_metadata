@@ -1,8 +1,9 @@
 import json
 import pathlib
 from dataclasses import asdict, dataclass
-from google.cloud import pubsub_v1
 from typing import List
+
+from google.cloud import pubsub_v1
 
 from utils import (
     InvalidFileExtension,
@@ -129,8 +130,7 @@ def create_message(event, config):
 
     if file.extension() not in SUPPORTED_FILE_EXTENSIONS:
         raise InvalidFileExtension(
-            f"File extension '{file.extension()}' is invalid, supported extensions: {SUPPORTED_FILE_EXTENSIONS}"
-            # noqa:E501
+            f"File extension '{file.extension()}' is invalid, supported extensions: {SUPPORTED_FILE_EXTENSIONS}"  # noqa:E501
         )
 
     if file.type() == "mi":
