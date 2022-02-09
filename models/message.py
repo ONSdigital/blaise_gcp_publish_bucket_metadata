@@ -49,9 +49,6 @@ class File:
     def is_lms(self):
         return self.survey_name().startswith("LM")
 
-    def is_opn(self):
-        return self.survey_name() == "OPN"
-
     @classmethod
     def from_event(cls, event):
         return cls(
@@ -94,7 +91,7 @@ class Message:
         self.iterationL3 = file.instrument_name()
         return self
 
-    def data_delivery_opn(self, config):
+    def data_delivery_default(self, config):
         file = self.first_file()
         survey_name = file.survey_name()
         self.description = (
@@ -138,10 +135,10 @@ def create_message(event, config):
 
     if file.type() == "mi":
         return msg.management_information(config)
-    if file.type() == "dd" and file.is_opn():
-        return msg.data_delivery_opn(config)
     if file.type() == "dd" and file.is_lms():
         return msg.data_delivery_lms(config)
+    if file.type() == "dd":
+        return msg.data_delivery_default(config)
 
     raise InvalidFileType(
         f"File type '{file.type()}' is invalid, supported extensions: {SUPPORTED_FILE_TYPES}"  # noqa:E501
