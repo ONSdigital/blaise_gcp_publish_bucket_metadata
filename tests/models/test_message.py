@@ -78,26 +78,6 @@ def test_file_is_lms(file, survey_name, expected):
     assert file.is_lms() is expected
 
 
-@pytest.mark.parametrize(
-    "survey_name, expected",
-    [
-        ("OPN", True),
-        ("opn", True),
-        ("LMS", False),
-        ("LMB", False),
-        ("IPS", False),
-        ("LMC", False),
-        ("LMO", False),
-        ("QWERTY", False),
-        ("LMNOP", False),
-        ("OPNFOOBAR", True),
-    ],
-)
-def test_file_is_opn(file, survey_name, expected):
-    file.name = f"dd_{survey_name}2101a.zip:my-bucket-name"
-    assert file.is_opn() is expected
-
-
 def test_file_from_event(dd_event):
     file = File.from_event(dd_event("OPN2102R"))
     assert file.name == "dd_OPN2102R_0103202021_16428.zip:ons-blaise-v2-nifi"
@@ -192,7 +172,7 @@ def test_create_message_with_an_invalid_file_extension(
 
 @pytest.mark.parametrize(
     "spicy_file_types",
-    [("notMI"), ("notDD"), ("ddfoo"), ("mibar"), ("mmmm_spicy"), ("dd_KFC2101A")],
+    [("notMI"), ("notDD"), ("ddfoo"), ("mibar"), ("mmmm_spicy")],
 )
 def test_create_message_with_an_invalid_file_type(spicy_file_types, event, config):
     event = event(spicy_file_types)
