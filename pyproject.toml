@@ -8,6 +8,8 @@ authors = ["Sam Bryant <sam.bryant@armakuni.com>"]
 python = "^3.7"
 blaise-dds = {git = "https://github.com/ONSdigital/blaise-data-delivery-status-client.git", rev = "main"}
 google-cloud-pubsub = "^2.4.1"
+grpcio = "^1.59"
+
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
