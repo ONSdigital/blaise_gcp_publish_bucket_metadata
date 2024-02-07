@@ -40,9 +40,7 @@ def test_update_data_delivery_state(mock_update_state, dd_event, instrument, sta
     update_data_delivery_state(dd_event, state)
     assert mock_update_state.call_count == 1
     assert mock_update_state.call_args_list[0] == mock.call(
-        dd_event["name"],
-        state,
-        None,
+        dd_event["name"], state, None,
     )
 
 

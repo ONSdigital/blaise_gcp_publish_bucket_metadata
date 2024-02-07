@@ -18,11 +18,7 @@ def test_file_filename(file):
 
 
 @pytest.mark.parametrize(
-    "file_name,file_type",
-    [
-        ("dd_file.zip", "dd"),
-        ("mi_file.zip", "mi"),
-    ],
+    "file_name,file_type", [("dd_file.zip", "dd"), ("mi_file.zip", "mi"),],
 )
 def test_file_type(file, file_name, file_type):
     file.name = f"{file_name}:my-bucket-name"
@@ -87,11 +83,7 @@ def test_file_from_event(dd_event):
 
 
 @pytest.mark.parametrize(
-    "instrument, expected_tla",
-    [
-        ("opn2101A", "OPN"),
-        ("lms2102_bk1", "LMS"),
-    ],
+    "instrument, expected_tla", [("opn2101A", "OPN"), ("lms2102_bk1", "LMS"),],
 )
 def test_create_message_for_management_information(
     instrument, expected_tla, mi_event, config
@@ -151,14 +143,7 @@ def test_create_message_for_data_delivery_lms(
 
 
 @pytest.mark.parametrize(
-    "spicy_file_extension",
-    [
-        ("avi"),
-        ("dat"),
-        ("nth"),
-        ("zoo"),
-        ("qxd"),
-    ],
+    "spicy_file_extension", [("avi"), ("dat"), ("nth"), ("zoo"), ("qxd"),],
 )
 def test_create_message_with_an_invalid_file_extension(
     spicy_file_extension, dd_event, config
@@ -171,8 +156,7 @@ def test_create_message_with_an_invalid_file_extension(
 
 
 @pytest.mark.parametrize(
-    "spicy_file_types",
-    [("notMI"), ("notDD"), ("ddfoo"), ("mibar"), ("mmmm_spicy")],
+    "spicy_file_types", [("notMI"), ("notDD"), ("ddfoo"), ("mibar"), ("mmmm_spicy")],
 )
 def test_create_message_with_an_invalid_file_type(spicy_file_types, event, config):
     event = event(spicy_file_types)
