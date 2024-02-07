@@ -2,9 +2,10 @@ import json
 import os
 from unittest import mock
 
-import blaise_dds
+import blaise_dds  # type: ignore
 import pytest
-from google.cloud.pubsub_v1 import PublisherClient
+from google.cloud.pubsub_v1 import PublisherClient  # type: ignore
+from pytest_lazyfixture import lazy_fixture  # type: ignore
 
 from main import publishMsg
 
@@ -23,9 +24,9 @@ from main import publishMsg
 @pytest.mark.parametrize(
     "instrument, expected_message",
     [
-        ("OPN2102R", pytest.lazy_fixture("expected_pubsub_message_dd_opn")),
-        ("LMS2102R", pytest.lazy_fixture("expected_pubsub_message_dd_lms")),
-        ("LMC2102R", pytest.lazy_fixture("expected_pubsub_message_dd_lmc")),
+        ("OPN2102R", lazy_fixture("expected_pubsub_message_dd_opn")),
+        ("LMS2102R", lazy_fixture("expected_pubsub_message_dd_lms")),
+        ("LMC2102R", lazy_fixture("expected_pubsub_message_dd_lmc")),
     ],
 )
 def test_publishMsg_for_data_delivery(

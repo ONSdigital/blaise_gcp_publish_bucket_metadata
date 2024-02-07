@@ -1,7 +1,7 @@
 import base64
 import binascii
 
-import blaise_dds
+import blaise_dds  # type: ignore
 
 
 def log_event(event):

@@ -3,7 +3,7 @@ from dataclasses import asdict
 from unittest import mock
 
 import pytest
-from google.cloud.pubsub_v1 import PublisherClient
+from google.cloud.pubsub_v1 import PublisherClient  # type: ignore
 
 from models.message import File, create_message, send_pub_sub_message
 from utils import InvalidFileExtension, InvalidFileType

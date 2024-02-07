@@ -1,6 +1,6 @@
 from unittest import mock
 
-import blaise_dds
+import blaise_dds  # type: ignore
 import pytest
 
 from utils import md5hash_to_md5sum, size_in_megabytes, update_data_delivery_state

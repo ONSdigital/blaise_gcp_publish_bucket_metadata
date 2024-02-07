@@ -3,7 +3,7 @@ import pathlib
 from dataclasses import asdict, dataclass
 from typing import List
 
-from google.cloud import pubsub_v1
+from google.cloud import pubsub_v1  # type: ignore
 
 from utils import (
     InvalidFileExtension,

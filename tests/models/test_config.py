@@ -1,7 +1,7 @@
 import os
 from unittest import mock
 
-import blaise_dds
+import blaise_dds  # type: ignore
 import pytest
 
 from main import publishMsg
