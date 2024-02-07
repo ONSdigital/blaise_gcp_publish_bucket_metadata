@@ -36,11 +36,17 @@ def test_config_from_env():
 
 
 @mock.patch.dict(
-    os.environ, {"TOPIC_NAME": "nifi-notify"},
+    os.environ,
+    {"TOPIC_NAME": "nifi-notify"},
 )
 @mock.patch.object(blaise_dds.Client, "update_state")
 @pytest.mark.parametrize(
-    "instrument", [("LMC2102R"), ("OPN2102R"), ("LMS2102R"),],
+    "instrument",
+    [
+        ("LMC2102R"),
+        ("OPN2102R"),
+        ("LMS2102R"),
+    ],
 )
 def test_project_id_not_set(_mock_update_state, dd_event, capsys, instrument):
     dd_event = dd_event(instrument)

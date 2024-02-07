@@ -65,7 +65,12 @@ def test_publishMsg_for_management_information(
 @mock.patch.object(blaise_dds.Client, "update_state")
 @mock.patch.object(PublisherClient, "publish")
 @pytest.mark.parametrize(
-    "instrument", [("LMC2102R"), ("OPN2102R"), ("LMS2102R"),],
+    "instrument",
+    [
+        ("LMC2102R"),
+        ("OPN2102R"),
+        ("LMS2102R"),
+    ],
 )
 def test_publishMsg_error(mock_pubsub, mock_update_state, dd_event, instrument):
     mock_pubsub.side_effect = Exception(
