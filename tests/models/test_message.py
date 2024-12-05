@@ -114,6 +114,7 @@ def test_file_from_event(dd_event):
     [
         ("opn2101A", "OPN"),
         ("lms2102_bk1", "LMS"),
+        ("frs2102a", "FRS"),
     ],
 )
 def test_create_message_for_management_information(
