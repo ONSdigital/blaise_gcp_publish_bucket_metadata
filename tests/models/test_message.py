@@ -146,6 +146,7 @@ def test_create_message_for_data_delivery_opn(dd_event, config):
     assert actual_message.iterationL3 == "OPN"
     assert actual_message.iterationL4 == "OPN2101A"
 
+
 def test_create_message_for_data_delivery_frs(dd_event, config):
     dd_event = dd_event("frs2411a")
     actual_message = create_message(dd_event, config)
