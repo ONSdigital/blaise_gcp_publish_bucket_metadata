@@ -37,11 +37,12 @@ def test_file_type(file, file_name, file_type):
         ("dd_lms2102_bk1.zip", "LMS"),
         ("dd_lmc2102_bk1.zip", "LMC"),
         ("dd_lmb21021_bk2.zip", "LMB"),
+        ("dd_frs2411a.zip", "FRS"),
     ],
 )
-def test_file_survey_name(file, file_name, expected):
+def test_file_survey_tla(file, file_name, expected):
     file.name = f"{file_name}:my-bucket-name"
-    assert file.survey_name() == expected
+    assert file.survey_tla() == expected
 
 
 @pytest.mark.parametrize(
@@ -51,6 +52,7 @@ def test_file_survey_name(file, file_name, expected):
         ("dd_lms2102_a1.zip", "LMS2102_A1"),
         ("dd_lms2102_bk1.zip", "LMS2102_BK1"),
         ("dd_lmc2102_bk1.zip", "LMC2102_BK1"),
+        ("dd_frs2411a.zip", "FRS2411A"),
     ],
 )
 def test_file_instrument_name(file, file_name, expected):
@@ -59,7 +61,7 @@ def test_file_instrument_name(file, file_name, expected):
 
 
 @pytest.mark.parametrize(
-    "survey_name, expected",
+    "survey_tla, expected",
     [
         ("OPN", False),
         ("OLS", False),
@@ -71,11 +73,32 @@ def test_file_instrument_name(file, file_name, expected):
         ("QWERTY", False),
         ("LMNOP", True),
         ("LBS", False),
+        ("FRS", False),
     ],
 )
-def test_file_is_lms(file, survey_name, expected):
-    file.name = f"dd_{survey_name}2101a.zip:my-bucket-name"
+def test_file_is_lms(file, survey_tla, expected):
+    file.name = f"dd_{survey_tla}2101a.zip:my-bucket-name"
     assert file.is_lms() is expected
+
+@pytest.mark.parametrize(
+    "survey_tla, expected",
+    [
+        ("OPN", False),
+        ("OLS", False),
+        ("LMS", False),
+        ("LMB", False),
+        ("IPS", False),
+        ("LMC", False),
+        ("LMO", False),
+        ("QWERTY", False),
+        ("LMNOP", False),
+        ("LBS", False),
+        ("FRS", True),
+    ],
+)
+def test_file_is_frs(file, survey_tla, expected):
+    file.name = f"dd_{survey_tla}2101a.zip:my-bucket-name"
+    assert file.is_frs() is expected
 
 
 def test_file_from_event(dd_event):
@@ -91,6 +114,7 @@ def test_file_from_event(dd_event):
     [
         ("opn2101A", "OPN"),
         ("lms2102_bk1", "LMS"),
+        ("frs2102a", "FRS"),
     ],
 )
 def test_create_message_for_management_information(
@@ -124,8 +148,22 @@ def test_create_message_for_data_delivery_opn(dd_event, config):
     assert actual_message.iterationL4 == "OPN2101A"
 
 
+def test_create_message_for_data_delivery_frs(dd_event, config):
+    dd_event = dd_event("frs2411a")
+    actual_message = create_message(dd_event, config)
+
+    assert (
+        actual_message.description
+        == "Data Delivery files for FRS uploaded to GCP bucket from Blaise5"
+    )
+
+    assert actual_message.dataset == "blaise_dde_frs"
+    assert actual_message.iterationL1 == "bl5-test"
+    assert actual_message.iterationL2 == "FRS2411A"
+
+
 @pytest.mark.parametrize(
-    "instrument,expected_survey_name",
+    "instrument,expected_survey_tla",
     [
         ("LMS2102_A1", "LMS"),
         ("lms2102_bk1", "LMS"),
@@ -134,14 +172,14 @@ def test_create_message_for_data_delivery_opn(dd_event, config):
     ],
 )
 def test_create_message_for_data_delivery_lms(
-    instrument, expected_survey_name, dd_event, config
+    instrument, expected_survey_tla, dd_event, config
 ):
     dd_event = dd_event(instrument)
     actual_message = create_message(dd_event, config)
 
     assert (
         actual_message.description
-        == f"Data Delivery files for {expected_survey_name} uploaded to GCP bucket from Blaise5"
+        == f"Data Delivery files for {expected_survey_tla} uploaded to GCP bucket from Blaise5"
     )
     assert actual_message.dataset == "blaise_dde_lms"
     assert actual_message.iterationL1 == "CLOUD"
