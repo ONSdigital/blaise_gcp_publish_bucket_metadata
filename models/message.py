@@ -33,7 +33,7 @@ class File:
     def type(self):
         return self.name.split("_")[0]
 
-    def survey_name(self):
+    def survey_tla(self):
         return self.filename().split("_")[1][0:3].upper()
 
     def instrument_name(self):
@@ -47,7 +47,10 @@ class File:
         return "_".join(instrument_name).upper()
 
     def is_lms(self):
-        return self.survey_name().startswith("LM")
+        return self.survey_tla().startswith("LM")
+    
+    def is_frs(self):
+        return self.survey_tla().startswith("FRS")
 
     @classmethod
     def from_event(cls, event):
@@ -87,34 +90,48 @@ class Message:
         )
         self.dataset = "blaise_mi"
         self.iterationL1 = f"BL5-{config.env}"
-        self.iterationL2 = file.survey_name()
+        self.iterationL2 = file.survey_tla()
         self.iterationL3 = file.instrument_name()
         return self
 
     def data_delivery_default(self, config):
         file = self.first_file()
-        survey_name = file.survey_name()
+        survey_tla = file.survey_tla()
         self.description = (
-            f"Data Delivery files for {survey_name} uploaded to GCP bucket from Blaise5"
+            f"Data Delivery files for {survey_tla} uploaded to GCP bucket from Blaise5"
         )
         self.dataset = "blaise_dde"
         self.iterationL1 = "SYSTEMS"
         self.iterationL2 = config.on_prem_subfolder
-        self.iterationL3 = survey_name
+        self.iterationL3 = survey_tla
         self.iterationL4 = file.instrument_name()
         return self
 
     def data_delivery_lms(self, config):
         file = self.first_file()
-        survey_name = file.survey_name()
+        survey_tla = file.survey_tla()
         environment = config.env
         self.description = (
-            f"Data Delivery files for {survey_name} uploaded to GCP bucket from Blaise5"
+            f"Data Delivery files for {survey_tla} uploaded to GCP bucket from Blaise5"
         )
         self.dataset = "blaise_dde_lms"
         self.iterationL1 = "CLOUD"
         self.iterationL2 = environment
         self.iterationL3 = file.instrument_name()
+        return self
+    
+    def data_delivery_frs(self, config):
+        file = self.first_file()
+        survey_tla = file.survey_tla()
+        environment = config.env
+        self.description = (
+            f"Data Delivery files for {survey_tla} uploaded to GCP bucket from Blaise5"
+        )
+        self.dataset = "blaise_dde_frs"
+        self.iterationL1 = "ingress"
+        self.iterationL2 = "survey_data"
+        self.iterationL3 = f"bl5-{environment}"
+        self.iterationL4 = file.instrument_name()
         return self
 
 
@@ -137,6 +154,8 @@ def create_message(event, config):
         return msg.management_information(config)
     if file.type() == "dd" and file.is_lms():
         return msg.data_delivery_lms(config)
+    if file.type() == "dd" and file.is_frs():
+        return msg.data_delivery_frs(config)
     if file.type() == "dd":
         return msg.data_delivery_default(config)
 

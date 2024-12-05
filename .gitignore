@@ -6,3 +6,4 @@ requirements.txt
 .vscode
 .idea
 .DS_Store
+.python-version
