@@ -161,7 +161,7 @@ def test_create_message_for_data_delivery_frs(dd_event, config):
     assert actual_message.iterationL1 == "ingress"
     assert actual_message.iterationL2 == "survey_data"
     assert actual_message.iterationL3 == "bl5-test"
-    assert actual_message.iterationL3 == "FRS2411A"
+    assert actual_message.iterationL4 == "FRS2411A"
 
 
 @pytest.mark.parametrize(
